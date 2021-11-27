@@ -1,3 +1,4 @@
+![Lines of code](https://img.shields.io/tokei/lines/github/maciej-stanuch/mgr-data-generator?style=plastic)
 # data-generator
 
 FIXME: description
