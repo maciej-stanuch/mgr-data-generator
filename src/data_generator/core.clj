@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [clojure.walk :as walk]
             [clojure.set :as set]
+            [taoensso.timbre :as log]
             [data-generator.model :as model]
             [data-generator.date-utils :as date-utils]
             [data-generator.database.mongo :as mongo]))
@@ -27,13 +28,13 @@
 
 (defn -main
   [& args]
-  (println "Reading arguments...")
+  (log/info "Reading arguments...")
   (let [params (cmd-params args)
         errors (validate-params params)]
     (if (empty? errors)
       (do
-        (println "Running with parameters:")
-        (println params)
+        (log/info "Running with parameters:")
+        (log/info params)
         (println (str "Random activity: " (rand-nth model/activities)))
         (println (str "Now:\t" (date-utils/now)))
         (println (str "Next:\t" (date-utils/random-next-date (date-utils/now))))
@@ -41,5 +42,5 @@
               db (mongo/get-db conn "admin")]
           (mongo/db-insert-document db "session" {:test "test" :abc "abc"})))
       (do
-        (println "Encountered errors:")
-        (doseq [error errors] (println (str "- " error)))))))
+        (log/error "Encountered errors:")
+        (doseq [error errors] (log/error (str "> " error)))))))
