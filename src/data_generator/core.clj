@@ -1,8 +1,9 @@
 (ns data-generator.core
   (:gen-class)
-  (:use clojure.walk
-        clojure.set)
-  (:require [data-generator.database.mongo :as mongo]))
+  (:require [clojure.walk :as walk]
+            [clojure.set :as set]
+            [data-generator.model :as model]
+            [data-generator.date-utils :as date-utils]))
 
 (declare cmd-params
          validate-params)
@@ -21,10 +22,9 @@
       (do
         (println "Running with parameters:")
         (println params)
-        (let [conn (mongo/db-connection (:--db-ip params) (:--db-port params))]
-          (do
-            (println conn)
-            (mongo/db-connection-close conn))))
+        (println (str "Random activity: " (rand-nth model/activities)))
+        (println (str "Now: " (date-utils/now)))
+        (println (str "Next: " (date-utils/random-next-date (date-utils/now)))))
       (do
         (println "Encountered errors:")
         (doseq [error errors] (println (str "- " error)))))))
@@ -32,11 +32,11 @@
 (defn- cmd-params
   "Parses the command line params to the key value map."
   [args]
-  (keywordize-keys (apply hash-map args)))
+  (walk/keywordize-keys (apply hash-map args)))
 
 (defn- validate-params
   "Validates the command line params passed to the program."
   [params]
-  (map #(str "Unrecognized parameter '" (name %) "'.") (difference
+  (map #(str "Unrecognized parameter '" (name %) "'.") (set/difference
                                                          (set (keys params))
                                                          known-program-params)))
